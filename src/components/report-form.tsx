@@ -96,8 +96,8 @@ export default function ReportForm() {
       (position) => {
         const { latitude, longitude } = position.coords;
         setLocation({ lat: latitude, lng: longitude });
-        form.setValue('latitude', latitude);
-        form.setValue('longitude', longitude);
+        form.setValue('latitude', latitude, { shouldValidate: true });
+        form.setValue('longitude', longitude, { shouldValidate: true });
         setIsLocating(false);
       },
       (error) => {
@@ -149,8 +149,16 @@ export default function ReportForm() {
             {location && <p className="text-sm text-green-400">Location captured successfully.</p>}
             {locationError && <p className="text-sm text-destructive">{locationError}</p>}
             {!location && <p className="text-xs text-muted-foreground">Location is required for reporting.</p>}
-            <input type="hidden" {...form.register('latitude')} />
-            <input type="hidden" {...form.register('longitude')} />
+            <FormField
+              control={form.control}
+              name="latitude"
+              render={({ field }) => <input type="hidden" {...field} />}
+            />
+            <FormField
+              control={form.control}
+              name="longitude"
+              render={({ field }) => <input type="hidden" {...field} />}
+            />
         </div>
         
         <div className="space-y-2">

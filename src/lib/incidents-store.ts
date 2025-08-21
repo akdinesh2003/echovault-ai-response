@@ -1,51 +1,62 @@
 import 'server-only';
+import { collection, addDoc, getDocs, query, orderBy, serverTimestamp } from 'firebase/firestore';
+import { db, storage } from '@/lib/firebase';
+import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import type { IncidentReport } from './types';
 
-const incidents: IncidentReport[] = [
-  {
-    id: '1',
-    description: 'Structure fire reported near downtown crossing. Multiple units responding.',
-    location: { lat: 42.3554, lng: -71.0605 },
-    timestamp: Date.now() - 1000 * 60 * 5,
-    isAnonymous: false,
-    severity: {
-      score: 8,
-      description: 'High severity due to potential for structural collapse and spread to nearby buildings.'
-    },
-    authenticity: {
-        isAuthentic: true,
-        confidenceScore: 0.95,
-        explanation: 'The report text is clear and specific, mentioning a "structure fire" and that "multiple units" are responding, which are typical characteristics of a genuine emergency report. The location provided corresponds to a dense urban area where such an event would be significant and require a multi-unit response.'
-    }
-  },
-  {
-    id: '2',
-    description: 'Minor traffic collision on Mass Ave bridge. No injuries reported.',
-    location: { lat: 42.3581, lng: -71.0822 },
-    timestamp: Date.now() - 1000 * 60 * 12,
-    isAnonymous: true,
-    severity: {
-      score: 3,
-      description: 'Low severity, minor traffic disruption expected.'
-    },
-    mediaUrl: 'https://placehold.co/600x400.png',
-  }
-];
-
 export async function getIncidents(): Promise<IncidentReport[]> {
-  return incidents.sort((a, b) => b.timestamp - a.timestamp);
+  const incidentsCol = collection(db, 'incidents');
+  const q = query(incidentsCol, orderBy('timestamp', 'desc'));
+  const incidentSnapshot = await getDocs(q);
+  const incidentsList = incidentSnapshot.docs.map(doc => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      timestamp: data.timestamp.toDate().getTime(),
+    } as IncidentReport
+  });
+  return incidentsList;
 }
 
-export async function addIncident(incident: Omit<IncidentReport, 'id' | 'timestamp'>): Promise<IncidentReport> {
-  const newIncident: IncidentReport = {
-    ...incident,
-    id: crypto.randomUUID(),
-    timestamp: Date.now(),
-  };
-  incidents.unshift(newIncident);
-  return newIncident;
+export async function addIncident(incident: Omit<IncidentReport, 'id' | 'timestamp' | 'mediaUrl'> & { mediaDataUri?: string | null }): Promise<IncidentReport> {
+  let downloadURL: string | undefined = undefined;
+
+  if (incident.mediaDataUri) {
+    const { mediaDataUri, ...incidentData } = incident;
+    const storageRef = ref(storage, `incidents/${crypto.randomUUID()}`);
+    const uploadResult = await uploadString(storageRef, mediaDataUri, 'data_url');
+    downloadURL = await getDownloadURL(uploadResult.ref);
+    
+    const docRef = await addDoc(collection(db, 'incidents'), {
+        ...incidentData,
+        mediaUrl: downloadURL,
+        timestamp: serverTimestamp(),
+    });
+
+    return {
+        id: docRef.id,
+        ...incident,
+        mediaUrl: downloadURL,
+        timestamp: Date.now(),
+    };
+
+  } else {
+    const { mediaDataUri, ...incidentData } = incident;
+    const docRef = await addDoc(collection(db, 'incidents'), {
+      ...incidentData,
+      timestamp: serverTimestamp(),
+    });
+  
+    return {
+      id: docRef.id,
+      ...incident,
+      timestamp: Date.now(),
+    };
+  }
 }
 
 export async function getIncidentById(id: string): Promise<IncidentReport | undefined> {
+    const incidents = await getIncidents();
     return incidents.find(incident => incident.id === id);
 }

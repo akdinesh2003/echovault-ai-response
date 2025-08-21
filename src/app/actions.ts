@@ -62,7 +62,7 @@ export async function submitReport(prevState: FormState, formData: FormData): Pr
   const { description, latitude, longitude, isAnonymous, media } = parsed.data;
 
   try {
-    const newIncidentData: Omit<IncidentReport, 'id' | 'timestamp'> = {
+    const newIncidentData: Omit<IncidentReport, 'id' | 'timestamp' | 'mediaUrl'> & {mediaDataUri?: string | null} = {
       description,
       location: { lat: latitude, lng: longitude },
       isAnonymous,
@@ -70,7 +70,7 @@ export async function submitReport(prevState: FormState, formData: FormData): Pr
     
     const mediaDataUri = media ? await fileToDataUri(media) : null;
     if (mediaDataUri) {
-        newIncidentData.mediaUrl = mediaDataUri;
+        newIncidentData.mediaDataUri = mediaDataUri;
     }
 
     const [severityResult, authenticityResult] = await Promise.all([

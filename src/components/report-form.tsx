@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useFormState } from 'react-dom';
+import { useFormState, useFormStatus } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,7 +15,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/hooks/use-toast';
 import { LocateFixed, Loader2, FileUp } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
-import { useFormStatus } from 'react-dom';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -85,6 +84,12 @@ export default function ReportForm() {
           description: formState.message,
           variant: 'destructive',
         });
+        if (formState.errors?.description) {
+            form.setError('description', { type: 'manual', message: formState.errors.description.join(', ') });
+        }
+        if (formState.errors?.media) {
+            form.setError('media', { type: 'manual', message: formState.errors.media.join(', ') });
+        }
       }
     }
   }, [formState, toast, form]);
@@ -111,10 +116,10 @@ export default function ReportForm() {
     const file = event.target.files?.[0];
     if (file) {
       setFileName(file.name);
-      form.setValue('media', file);
+      form.setValue('media', file, { shouldValidate: true });
     } else {
       setFileName('');
-      form.setValue('media', undefined);
+      form.setValue('media', undefined, { shouldValidate: true });
     }
   };
 
@@ -169,8 +174,8 @@ export default function ReportForm() {
               <span className='truncate'>{fileName || 'Upload a file'}</span>
             </label>
           </Button>
-          <Input id="media-upload" type="file" className="sr-only" onChange={onFileChange} accept="image/*,audio/*" />
-          {form.formState.errors.media && <p className="text-sm text-destructive">{form.formState.errors.media.message?.toString()}</p>}
+          <Input id="media-upload" name="media" type="file" className="sr-only" onChange={onFileChange} accept="image/*,audio/*" />
+          <FormMessage>{form.formState.errors.media?.message?.toString()}</FormMessage>
         </div>
 
         <FormField
@@ -185,6 +190,7 @@ export default function ReportForm() {
                 <Switch
                   checked={field.value}
                   onCheckedChange={field.onChange}
+                  name="isAnonymous"
                 />
               </FormControl>
             </FormItem>

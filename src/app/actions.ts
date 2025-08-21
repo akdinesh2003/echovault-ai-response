@@ -24,7 +24,9 @@ export interface FormState {
   message: string;
   errors?: {
     description?: string[];
-    location?: string[];
+    latitude?: string[];
+    longitude?: string[];
+    isAnonymous?: string[];
     media?: string[];
     _form?: string[];
   };
@@ -53,7 +55,7 @@ export async function submitReport(prevState: FormState, formData: FormData): Pr
 
   if (!parsed.success) {
     return {
-      message: 'Invalid form data.',
+      message: 'Invalid form data. Please check the errors below.',
       errors: parsed.error.flatten().fieldErrors,
       isSuccess: false,
     };

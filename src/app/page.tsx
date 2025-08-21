@@ -13,7 +13,7 @@ import IncidentDetails from '@/components/incident-details';
 
 function IncidentListItem({ incident }: { incident: IncidentReport }) {
   return (
-    <div className="p-4 border-b border-border">
+    <div className="p-4 border-b border-border/80 hover:bg-accent/50 transition-colors">
       <IncidentDetails incident={incident} />
     </div>
   );
@@ -24,11 +24,12 @@ export default async function Home() {
 
   return (
     <SidebarProvider>
+      <div className="fixed inset-0 bg-[url('/grid.svg')] bg-repeat -z-10" />
       <Sidebar>
         <SidebarHeader>
           <Link href="/" className="flex items-center gap-2 font-semibold">
             <EchoVaultLogo className="h-6 w-6 text-primary" />
-            <span className="text-lg">EchoVault</span>
+            <span className="text-lg tracking-tight">EchoVault</span>
           </Link>
         </SidebarHeader>
         <ScrollArea className="flex-1">
@@ -47,12 +48,12 @@ export default async function Home() {
         <SidebarFooter>
              <Sheet>
               <SheetTrigger asChild>
-                <Button>
+                <Button className="w-full">
                   <PlusCircle className="mr-2" />
                   New Report
                 </Button>
               </SheetTrigger>
-              <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+              <SheetContent className="w-full sm:max-w-lg overflow-y-auto bg-background/95 backdrop-blur-sm">
                 <SheetHeader>
                   <SheetTitle>Report an Emergency</SheetTitle>
                   <SheetDescription>

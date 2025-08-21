@@ -8,23 +8,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
-import type { IncidentReport } from '@/lib/types';
-import IncidentDetails from '@/components/incident-details';
-
-function IncidentListItem({ incident }: { incident: IncidentReport }) {
-  return (
-    <div className="p-4 border-b border-border/80 hover:bg-accent/50 transition-colors">
-      <IncidentDetails incident={incident} />
-    </div>
-  );
-}
+import IncidentFeed from '@/components/incident-feed';
 
 export default async function Home() {
   const incidents = await getIncidents();
 
   return (
     <SidebarProvider>
-      <div className="fixed inset-0 bg-[url('/grid.svg')] bg-repeat -z-10" />
+      <div className="fixed inset-0 bg-background/50 bg-[url('/grid-dark.svg')] bg-center bg-repeat -z-10" />
       <Sidebar>
         <SidebarHeader>
           <Link href="/" className="flex items-center gap-2 font-semibold">
@@ -34,15 +25,7 @@ export default async function Home() {
         </SidebarHeader>
         <ScrollArea className="flex-1">
             <SidebarContent>
-                <div className="p-4">
-                    <h2 className="text-xl font-semibold tracking-tight">Recent Incidents</h2>
-                    <p className="text-muted-foreground text-sm">Live feed of reported events</p>
-                </div>
-                <div>
-                    {incidents.map((incident) => (
-                        <IncidentListItem key={incident.id} incident={incident} />
-                    ))}
-                </div>
+                <IncidentFeed incidents={incidents} />
             </SidebarContent>
         </ScrollArea>
         <SidebarFooter>

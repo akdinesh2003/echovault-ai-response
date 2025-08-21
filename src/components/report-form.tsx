@@ -15,6 +15,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/hooks/use-toast';
 import { LocateFixed, Loader2, FileUp } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { useFormStatus } from 'react-dom';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -35,6 +36,19 @@ const initialState: FormState = {
   message: '',
   isSuccess: false,
 };
+
+function SubmitButton({ isLocating, hasLocation }: { isLocating: boolean, hasLocation: boolean }) {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button type="submit" disabled={!hasLocation || isLocating || pending} className="w-full font-semibold">
+      {pending ? (
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      ) : null}
+      Submit Report
+    </Button>
+  );
+}
 
 export default function ReportForm() {
   const [formState, formAction] = useFormState(submitReport, initialState);
@@ -59,6 +73,7 @@ export default function ReportForm() {
         toast({
           title: 'Success!',
           description: formState.message,
+          className: 'bg-green-600 border-green-600 text-white',
         });
         form.reset();
         setFileName('');
@@ -131,7 +146,7 @@ export default function ReportForm() {
                 )}
                 {location ? 'Location Captured' : 'Get Current Location'}
             </Button>
-            {location && <p className="text-sm text-green-600 dark:text-green-400">Location captured successfully.</p>}
+            {location && <p className="text-sm text-green-400">Location captured successfully.</p>}
             {locationError && <p className="text-sm text-destructive">{locationError}</p>}
             {!location && <p className="text-xs text-muted-foreground">Location is required for reporting.</p>}
             <input type="hidden" {...form.register('latitude')} />
@@ -143,7 +158,7 @@ export default function ReportForm() {
           <Button asChild variant="outline" className="w-full relative">
             <label htmlFor="media-upload" className="cursor-pointer">
               <FileUp className="mr-2 h-4 w-4" />
-              {fileName || 'Upload a file'}
+              <span className='truncate'>{fileName || 'Upload a file'}</span>
             </label>
           </Button>
           <Input id="media-upload" type="file" className="sr-only" onChange={onFileChange} accept="image/*,audio/*" />
@@ -154,7 +169,7 @@ export default function ReportForm() {
           control={form.control}
           name="isAnonymous"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
               <div className="space-y-0.5">
                 <FormLabel>Report Anonymously</FormLabel>
               </div>
@@ -175,12 +190,7 @@ export default function ReportForm() {
           </Alert>
         )}
 
-        <Button type="submit" disabled={!location || form.formState.isSubmitting} className="w-full font-semibold animate-pulse hover:animate-none">
-          {form.formState.isSubmitting ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : null}
-          Submit Report
-        </Button>
+        <SubmitButton isLocating={isLocating} hasLocation={!!location} />
       </form>
     </Form>
   );

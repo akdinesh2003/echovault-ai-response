@@ -2,9 +2,6 @@
 
 EchoVault is a modern, AI-driven platform for reporting and verifying emergencies in real-time. It empowers users to submit incident reports with text, images, or audio, while leveraging AI to assess severity and authenticity, ensuring that responders can act quickly and effectively.
 
-![EchoVault Screenshot](https://placehold.co/800x400.png)
-*A preview of the EchoVault interface.*
-
 ## ✨ Features
 
 -   **Real-Time Incident Reporting**: Submit emergency reports with precise geolocation.
@@ -87,4 +84,4 @@ Open [http://localhost:9002](http://localhost:9002) in your browser to see the a
 
 ## ✍️ Author
 
--   **akdinesh2003** - [https://github.com/akdinesh2003](https://github.com/akdinesh2003)
+-   **AK DINESH** - [https://github.com/akdinesh2003](https://github.com/akdinesh2003)

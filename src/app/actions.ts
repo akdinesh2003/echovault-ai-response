@@ -13,7 +13,7 @@ const formSchema = z.object({
   description: z.string().min(10, { message: 'Description must be at least 10 characters long.' }),
   latitude: z.coerce.number(),
   longitude: z.coerce.number(),
-  isAnonymous: z.string().transform(val => val === 'on'),
+  isAnonymous: z.boolean(),
   media: z.instanceof(File)
     .optional()
     .refine(file => !file || file.size <= MAX_FILE_SIZE, `File size should be less than 5MB.`)
@@ -45,7 +45,7 @@ export async function submitReport(prevState: FormState, formData: FormData): Pr
     description: formData.get('description'),
     latitude: formData.get('latitude'),
     longitude: formData.get('longitude'),
-    isAnonymous: formData.get('isAnonymous'),
+    isAnonymous: formData.get('isAnonymous') === 'on',
     media: mediaFile && mediaFile.size > 0 ? mediaFile : undefined,
   };
 
